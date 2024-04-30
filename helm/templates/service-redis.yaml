@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mychart.fullname" . }}-redis
+  labels:
+    app: {{ include "mychart.name" . }}
+    tier: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "mychart.name" . }}
+      tier: redis
+  template:
+    metadata:
+      labels:
+        app: {{ include "mychart.name" . }}
+        tier: redis
+    spec:
+      containers:
+      - name: redis
+        image: {{ .Values.redis.image }}
+        ports:
+        - containerPort: 6379

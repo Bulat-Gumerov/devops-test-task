@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mychart.fullname" . }}-grafana
+  labels:
+    app: {{ include "mychart.name" . }}
+    tier: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "mychart.name" . }}
+      tier: grafana
+  template:
+    metadata:
+      labels:
+        app: {{ include "mychart.name" . }}
+        tier: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: {{ .Values.grafana.image }}
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: dashboards-config
+          mountPath: /etc/grafana/provisioning/dashboards/rabbitmq.yaml
+          subPath: rabbitmq.yaml
+        - name: datasources-config
+          mountPath: /etc/grafana/provisioning/datasources/prometheus.yaml
+          subPath: prometheus.yaml
+        - name: dashboards
+          mountPath: /dashboards
+      volumes:
+        - name: dashboards-config
+          configMap:
+            name: dashboards-config
+        - name: datasources-config
+          configMap:
+            name: datasources-config
+        - name: dashboards
+          hostPath:
+            path: ./monitoring/grafana/dashboards

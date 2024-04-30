@@ -1,0 +1,9 @@
+apiVersion: v2
+name: mychart
+description: A Helm chart for Golang app
+version: 1.0.0
+appVersion: "1.0"
+maintainers:
+  - name: Bulat Gumerov
+    email: email@example.com
+    url: https://bulat.pages.dev/

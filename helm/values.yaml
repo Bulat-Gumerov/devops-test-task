@@ -1,0 +1,13 @@
+web:
+  image: "devops-test-task_web:latest"
+  replicas: 2
+redis:
+  image: "redis:alpine3.19"
+monitoring:
+  image: "prom/prometheus:v2.51.2"
+blackbox_exporter:
+  image: "prom/blackbox-exporter:v0.25.0"
+redis_exporter:
+  image: "oliver006/redis_exporter:alpine"
+grafana:
+  image: "grafana/grafana:10.4.2"

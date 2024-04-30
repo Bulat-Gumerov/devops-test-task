@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mychart.fullname" . }}-redis-exporter
+  labels:
+    app: {{ include "mychart.name" . }}
+    tier: redis-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "mychart.name" . }}
+      tier: redis-exporter
+  template:
+    metadata:
+      labels:
+        app: {{ include "mychart.name" . }}
+        tier: redis-exporter
+    spec:
+      containers:
+      - name: redis-exporter
+        image: {{ .Values.redis_exporter.image }}
+        ports:
+        - containerPort: 9121

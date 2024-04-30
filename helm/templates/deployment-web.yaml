@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mychart.fullname" . }}-web
+  labels:
+    app: {{ include "mychart.name" . }}
+    tier: web
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "mychart.name" . }}
+      tier: web
+  template:
+    metadata:
+      labels:
+        app: {{ include "mychart.name" . }}
+        tier: web
+    spec:
+      containers:
+      - name: web
+        image: {{ .Values.web.image }}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: REDIS_ADDR
+          value: redis:6379
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080

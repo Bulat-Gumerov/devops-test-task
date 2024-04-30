@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mychart.fullname" . }}-blackbox-exporter
+  labels:
+    app: {{ include "mychart.name" . }}
+    tier: blackbox-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "mychart.name" . }}
+      tier: blackbox-exporter
+  template:
+    metadata:
+      labels:
+        app: {{ include "mychart.name" . }}
+        tier: blackbox-exporter
+    spec:
+      containers:
+      - name: blackbox-exporter
+        image: {{ .Values.blackbox_exporter.image }}
+        ports:
+        - containerPort: 9115
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9115

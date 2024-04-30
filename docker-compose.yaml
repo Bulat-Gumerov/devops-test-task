@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:8080"
+    networks:
+      - mynetwork
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 2m
+      timeout: 30s
+      retries: 5
+    environment:
+      REDIS_ADDR: "redis:6379"
+
+  redis:
+    image: redis:alpine3.19
+    networks:
+      - mynetwork
+    ports:
+      - "6379:6379"
+
+  monitoring:
+    image: prom/prometheus:v2.51.2
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - mynetwork
+    ports:
+      - "9090:9090"
+    networks:
+      - mynetwork
+    restart: unless-stopped
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.25.0
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9115/probe?target=web:3000"]
+      interval: 2m
+      timeout: 30s
+      retries: 5
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter:alpine
+    ports:
+      - "9121:9121"
+    networks:
+      - mynetwork
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    ports:
+      - "3001:3000"
+    networks:
+      - mynetwork
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/rabbitmq.yaml
+      - ./monitoring/grafana/datasources.yml:/etc/grafana/provisioning/datasources/prometheus.yaml
+      - ./monitoring/grafana/dashboards:/dashboards
+
+networks:
+  mynetwork:
+    driver: bridge
